@@ -1,1900 +1,342 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>XatSpace – Jefa</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
-
-<style>
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  height:100vh;
-  font-family:'Poppins',sans-serif;
-  background:radial-gradient(circle at top,#6b0000,#7a0000,#910000);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-
-/* CONTENEDOR PRINCIPAL (YA EXISTÍA) */
-.wrapper{
-  position:relative;
-  display:flex;
-  align-items:center;
-}
-
-/* BOTONES PEGADOS A LA CARD */
-.menu-left{
-  position:absolute;
-  left:-100px;       /* pegado a la card */
-  top:36%;
-  transform:translateY(-50%);
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  z-index:10;
-}
-
-.menu-left a{
-  position:relative;
-  width:110px;
-  padding:10px 0;
-  text-align:center;
-
-  background:rgba(238, 29, 43, 0.712);
-  backdrop-filter:blur(14px);
-
-  border-radius:10px;
-  border:1px solid rgba(241, 49, 49, 0.35); /* 👈 BORDE */
-  
-  font-size:13px;
-  color:#fcdcdf;
-  text-decoration:none;
-
-  box-shadow:
-    inset 0 0 1px rgba(250, 58, 58, 0.6),  /* brillo glass */
-    0 4px 10px rgba(128, 40, 40, 0.25);
-
-  transition:transform .25s ease,
-             box-shadow .25s ease,
-             border-color .25s ease;
-
-  font-family:'Poppins',sans-serif;
-  overflow:hidden;
-}
-
-
-.menu-left a::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(
-    135deg,
-    rgb(248, 118, 118),
-    rgb(248, 122, 122),
-    rgb(253, 112, 112)
-  );
-  opacity:0;
-  transition:opacity .15s ease;
-}
-
-
-
-.menu-left a:hover{
-  transform:translateX(-10px);
-  box-shadow:0 2px 2px rgba(248, 114, 114, 0.795);
-}
-
-.menu-left a:hover::after{
-  opacity:0;
-}
-
-
-.menu-left a:active::before{
-  opacity:0;
-}
-
-
-/* TARJETA */
-.card{
-  position:relative;
-  width:420px;
-  height:560px;
-  border-radius:30px;
-  background:rgba(216, 29, 29, 0.959);
-  backdrop-filter:blur(20px);
-  box-shadow:0 15px 10px rgba(141, 15, 15, 0.637);
-  z-index:2;
-  overflow:hidden; /* IMPORTANTE */
-}
-
-/* BORDE INTERNO */
-.card::before{
-  content:"";
-  position:absolute;
-  inset:14px;                 /* separación del borde */
-  border-radius:22px;
-  border:1.5px solid rgba(255,255,255,.75);
-  pointer-events:none;
-}
-
-
-
-
-
-.avatar{
-  position:absolute;
-  top:20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:160px;
-  height:160px;
-  border-radius:50%;
-  overflow:hidden;
-  border:4px solid rgba(255,255,255,.8);
-}
-
-
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.name{
-  position:absolute;
-  top:230px;
-  left:50%;
-  transform:translateX(-50%);
-  font-family:'Playfair Display',serif;
-  font-size:28px;
-  color:#ffe8e8;
-}
-
-
-.subtitle{
-  position:absolute;
-  top:280px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:13px;
-  color:#fdeaea;
-}
-
-
-.bio{
-  position:absolute;
-  top:315px;
-  left:50%;
-  transform:translateX(-50%);
-  width:80%;
- white-space: pre-wrap; /* permite saltos y wrapping natural */
-
-  padding:14px 16px;                 /* espacio interno del texto */
-  font-size:11px;
-  line-height:1.6;
-  color:#fcf3f4;
-   text-align:center;
-  background:rgba(224, 102, 102, 0.596);  /* fondo suave */
-  backdrop-filter:blur(10px);
-  border-radius:16px;
-
-  box-shadow:0 2px 4px rgba(68, 30, 30, 0.12);
-}
-
-
-
-/* FIRMA */
-.firma{
-  position:absolute;
-  bottom:40px;
-  left:50%;
-  transform:translateX(-50%);
-}
-
-
-.firma img{
-  max-width:280px;
-}
-
-/* FOOTER */
-.footer{
-  position:absolute;
-  bottom:30px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:8px;
-  color:#fdeef0aa;
-}
-
-/* OVERLAY */
-.modal-overlay{
-  position:fixed;
-  inset:0;
-
-  /* MÁS TRANSPARENTE */
-  background: rgba(255, 180, 210, 0.08);
-
-  /* BLUR MÁS SUAVE */
-  backdrop-filter: blur(7px);
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:0;
-  pointer-events:none;
-  transition:.35s ease;
-  z-index:999;
-}
-
-
-/* ACTIVO */
-.modal-overlay.active{
-  opacity:1;
-  pointer-events:auto;
-}
-
-/* CONTENIDO */
-.modal-content{
-  position:relative;
-  width:90%;
-  max-width:650px;
-  height:530px;
-  border-radius:20px;
-  overflow:visible;   /* ✅ CLAVE */
-  box-shadow:0 0 40px rgba(235, 53, 53, 0.466);
-  animation:zoomIn .35s ease;
-}
-
-
-.modal-content::before{
-  content:"";
-  position:absolute;
-  inset:-3px;
-  border-radius:25px;
-  border:3px solid rgba(255, 255, 255, 0.9);
-  pointer-events:none;
-
-  box-shadow:
-    0 0 25px rgba(204, 44, 44, 0.9),
-    0 0 60px rgba(170, 31, 38, 0.5);
-}
-
-
-/* IFRAME */
-.modal-content iframe{
-  width:100%;
-  height:100%;
-  border:none;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-
-/* BOTÓN CERRAR */
-.modal-close{
-  position:absolute;
-  top:7px;
-  right:10px;
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  background:rgba(255,255,255,.75);
-  backdrop-filter:blur(8px);
-  color:#f33242;
-  font-size:22px;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  z-index:1000;
-  box-shadow:0 6px 18px rgba(120,40,90,.45);
-  transition:.25s ease;
-}
-
-.modal-close:hover{
-  background:#ffd6e8;
-  transform:scale(1.15);
-}
-
-
-@keyframes zoomIn{
-  from{transform:scale(.85); opacity:0}
-  to{transform:scale(1); opacity:1}
-}
-
-#heartsCanvas{
-  position:fixed;
-  inset:0;
-  z-index:0;            /* detrás de todo */
-  pointer-events:none;  /* no molesta clicks */
-}
-
-/* ===============================
-   🎧 PLAYER LATERAL SHULA
-   =============================== */
-
-.player-slide{
-  position:absolute;
-  top:670px;
-  right:0;
-  transform: translateX(260px); /* OCULTO */
-  width:200px;
-  height:100px;
-  display:flex;
-  align-items:center;
-  transition: transform .6s cubic-bezier(.4,0,.2,1);
-  z-index:10060;
-}
-
-.player-slide.active{
-  transform: translateX(0); /* VISIBLE */
-}
-
-
-
-.player-tab{
-  width:40px;
-  height:120px;
-  background: linear-gradient(180deg,#ff3b3b,#ca36367a);
-  border-radius:15px 0 0 15px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  cursor:pointer;
-  box-shadow:0 0 25px rgba(255,0,0,.6);
-}
-
-.player-glass{
-  width:200px;
-  height:40%;
-  padding:4px;
-  background: rgba(223, 129, 129, 0.575);
-  backdrop-filter: blur(18px);
-
-  border-radius:20px;                     /* ✔ bordes iguales */
-  border:1px solid rgba(255,255,255,.25);
-  margin-left:-1px;                       /* ✔ unión perfecta */
-
-  box-shadow:
-    inset 0 0 20px rgba(255,255,255,.15),
-    0 0 40px rgba(194, 88, 88, 0.45);
-}
-
-
-.music-title{
-  font-size:11px;
-  letter-spacing:2px;
-  color:#ffd6d6;
-  text-transform:uppercase;
-  margin-bottom:6px;
-  text-align:center;
-}
-
-.animated-song{
-  font-size:12px;
-  margin-bottom:14px;
-  background: linear-gradient(90deg,#fff,#fce3e3,#fff);
-  background-size:200% auto;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation: songGlow 4s linear infinite;
-}
-
-@keyframes songGlow{
-  to{ background-position:200% center; }
-}
-
-.player-controls{
-  display:flex;
-  justify-content:center;
-  gap:16px;
-}
-
-.player-controls button{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  background: rgba(255,255,255,.18);
-  border:1px solid rgba(255,255,255,.3);
-  cursor:pointer;
-  backdrop-filter: blur(12px);
-  transition:.3s;
-}
-
-.player-controls button:hover{
-  transform: scale(1.15);
-  box-shadow:0 0 25px rgba(253, 235, 235, 0.8);
-}
-
-.progress{
-  margin-top:14px;
-  width:100%;
-  accent-color:#eed7d7;
-}
-.btn-player{
-  position:relative;
-}
-
-/* CONTENEDOR DEL PLAYER */
-.player-drop{
-  position:fixed;               /* 🔥 SALE del menú */
-  left:calc(140% - 210px);       /* alineado con la card */
-  top:42%;                      /* misma altura del menú */
-  margin-top:120px;             /* cae hacia abajo */
-  width:260px;
-
-  transform: translateY(-15px);
-  opacity:0;
-  pointer-events:none;
-
-  transition:.4s ease;
-  z-index:1000;
-}
-
-
-
-/* ACTIVO */
-.player-drop.active{
-  transform: translateY(0);
-  opacity:1;
-  pointer-events:auto;
-}
-
-/* 🔧 FIX: el wrapper del reproductor debe comportarse como un botón */
-.menu-left .btn-player{
-  width:110px;            /* igual que .menu-left a */
-  display:block;
-}
-
-/* asegura que el <a> interno no altere el layout */
-.menu-left .btn-player > a{
-  width:100%;
-  display:block;
-}
-
-img{
-  pointer-events:none;
-  user-select:none;
-}
-
-
-.home-icon{
-  position:absolute;
-  width:38px;
-  height:38px;
-  border-radius:50%;
-
-  right:-6px;
-  bottom:-6px;
-
-  /* FONDO MÁS SÓLIDO */
-  background: linear-gradient(
-    145deg,
-    #ffd6e1,
-    #f4a8b8
-  );
-
-  border:2px solid #fff;
-
-  box-shadow:
-    0 4px 12px rgba(150,50,60,.45),
-    inset 0 0 6px rgba(255,255,255,.8);
-
-  z-index:10;
-  cursor:pointer;
-  transition:.25s ease;
-}
-
-/* icono */
-.home-icon::before{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:17px;
-  color:#9c2f42;
-}
-
-.home-icon:hover{
-  transform:scale(1.15);
-}
-
-/* contenedor del avatar */
-.avatar-wrap{
-  position:absolute;
-  top:40px;
-  left:50%;
-  transform:translateX(-50%);
-  width:160px;
-  height:160px;
-}
-
-/* avatar original intacto */
-.avatar{
-  position:relative;
-  width:100%;
-  height:100%;
-}
-
-/* icono fuera del círculo */
-.home-icon{
-  position:absolute;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-
-  top:150px;
-  left: 20px;
-
-  z-index:15;
-  cursor:pointer;
-  transition:.25s ease;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.home-icon img{
-  width:30px;      /* tamaño del icono */
-  height:30px;
-  pointer-events:none;
-}
-
-.home-icon:hover{
-  transform:scale(1.15);
-}
-
-/* icono fuera del círculo */
-.forum-icon{
-  position:absolute;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-
-  top:120px;
-  left: -6px;
-
-  z-index:15;
-  cursor:pointer;
-  transition:.25s ease;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.forum-icon img{
-  width:30px;      /* tamaño del icono */
-  height:30px;
-  pointer-events:none;
-}
-
-.forum-icon:hover{
-  transform:scale(1.15);
-}
-/* ===============================
-   INTRO PRINCIPAL
-================================ */
-
-.intro{
-  position:fixed;
-  inset:0;
-  z-index:99999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: radial-gradient(
-    circle at top,
-    #5a0000,
-    #500000,
-    #530000
-  );
-  overflow:hidden;
-}
-
-
-
-/* ===============================
-   CORAZÓN ENTER – ESTRUCTURA
-================================ */
-
-.heart-wrapper{
-  transform: translateY(-10px);
-}
-
-.heart-enter{
-  position:relative;
-  width:130px;
-  height:130px;
-  cursor:pointer;
-
-  transform:rotate(-45deg);
-  animation:heartFloat 3s ease-in-out infinite;
-
-  filter:
-    drop-shadow(0 0 25px rgba(216, 23, 23, 0.8))
-    drop-shadow(0 0 60px rgba(192, 18, 18, 0.6));
-
-  transition:.35s ease;
-}
-
-/* ===============================
-   FORMA DEL CORAZÓN (ATRÁS)
-================================ */
-
-.heart-enter::before,
-.heart-enter::after{
-  content:"";
-  position:absolute;
-  width:130px;
-  height:130px;
-  border-radius:50%;
-  z-index:1; /* 👈 base */
-
-  background:linear-gradient(
-    145deg,
-    #fa8888,
-    #cc1919,
-    #ce1616
-  );
-}
-
-.heart-enter::before{
-  top:-65px;
-  left:0;
-}
-
-.heart-enter::after{
-  left:65px;
-  top:0;
-}
-
-/* ===============================
-   GLASS CENTRAL (DETRÁS DEL TEXTO)
-================================ */
-
-.heart-glass{
-  position:absolute;
-  inset:0;
-  border-radius:18px;
-  z-index:2; /* 👈 corazón */
-
-  background:linear-gradient(
-    145deg,
-    rgba(255,255,255,.35),
-    rgba(255,180,190,.85)
-  );
-
-  backdrop-filter:blur(14px);
-
-  box-shadow:
-    inset 0 0 28px rgba(255,255,255,.45),
-    0 0 45px rgba(255, 100, 100, 0.75);
-}
-
-/* BORDE INTERNO */
-.heart-glass::after{
-  content:"";
-  position:absolute;
-  inset:18px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.85);
-}
-
-/* REFLEJO GLASS */
-.heart-glass::before{
-  content:"";
-  position:absolute;
-  inset:22px;
-  border-radius:14px;
-  background:linear-gradient(
-    120deg,
-    rgba(255,255,255,.65),
-    transparent 60%
-  );
-  opacity:.35;
-}
-
-/* ===============================
-   TEXTO INGRESAR (ADELANTE)
-================================ */
-
-.heart-text{
-  position:absolute;
-  inset:0;
-  z-index:10; /* 👑 SIEMPRE ARRIBA */
-
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-
-  transform:rotate(45deg);
-
-  font-family:'Playfair Display',serif;
-  font-size:17px;
-  letter-spacing:4px;
-  line-height:1;
-
-  color:#db2828;
-  text-shadow:
-    0 2px 3px rgba(255,255,255,.95),
-    0 0 12px rgba(247, 88, 88, 0.9);
-
-  pointer-events:none;
-}
-
-.heart-text small{
-  font-size:13px;
-  letter-spacing:6px;
-  margin-top:4px;
-}
-
-/* ===============================
-   MINI CORAZONES
-================================ */
-
-.mini-heart{
-  position:absolute;
-  width:14px;
-  height:14px;
-  z-index:3; /* debajo del texto */
-
-  background:linear-gradient(145deg,#ffd6dc,#fa6e6e);
-  transform:rotate(-45deg);
-  opacity:.75;
-  animation:floatMini 3s ease-in-out infinite;
-}
-
-.mini-heart::before,
-.mini-heart::after{
-  content:"";
-  position:absolute;
-  width:14px;
-  height:14px;
-  background:inherit;
-  border-radius:50%;
-}
-
-.mini-heart::before{ top:-7px; left:0; }
-.mini-heart::after{ left:7px; top:0; }
-
-/* POSICIONES */
-.mh1{ left:-26px; top:22px; animation-delay:.2s; }
-.mh2{ right:-26px; top:38px; animation-delay:.4s; }
-.mh3{ left:18px; bottom:-28px; animation-delay:.6s; }
-.mh4{ right:20px; bottom:-32px; animation-delay:.8s; }
-
-/* ===============================
-   EFECTOS
-================================ */
-
-.heart-enter:hover{
-  transform:rotate(-45deg) scale(1.12);
-}
-
-@keyframes heartFloat{
-  0%,100%{ transform:rotate(-45deg) translateY(0); }
-  50%{ transform:rotate(-45deg) translateY(-10px); }
-}
-
-@keyframes floatMini{
-  0%,100%{ transform:rotate(-45deg) translateY(0); opacity:.6; }
-  50%{ transform:rotate(-45deg) translateY(-8px); opacity:1; }
-}
-
-/* ===============================
-   TRANSICIÓN DE PÁGINA PREMIUM
-================================ */
-
-#page-transition{
-  position:fixed;
-  inset:0;
-  background:radial-gradient(circle at center,
-    rgba(248, 137, 137, 0.85),
-    rgba(196, 20, 20, 0.95)
-  );
-  opacity:0;
-  pointer-events:none;
-  z-index:9999;
-  transform:scale(1.2);
-  filter:blur(20px);
-  transition:
-    opacity .9s ease,
-    transform .9s ease,
-    filter .9s ease;
-}
-
-body.is-transitioning #page-transition{
-  opacity:1;
-  transform:scale(1);
-  filter:blur(0);
-}
-
-
-/* ===============================
-   CONTENIDO RECONSTRUYÉNDOSE
-================================ */
-
-.page-content{
-  min-height:100vh;
-  width:100%;
-  display:flex;
-  justify-content:center;
-
-  opacity:0;
-  transform:translateY(20px);
-  transition:
-    opacity 1.4s ease,
-    transform 1.4s ease;
-}
-
-body.entered .page-content{
-  opacity:1;
-  transform:translateY(0);
-}
-
-
-
-/* ===============================
-   ESTADO FINAL
-================================ */
-
-body.entered{
-  overflow:auto;
-}
-
-/* ✨ Estela elegante */
-.heart-sparkle{
-  position: fixed;
-  width: 8px;
-  height: 8px;
-  background: radial-gradient(circle, #ec3434, transparent);
-  border-radius: 50%;
- pointer-events:none;
-  z-index: 99998;
-  animation: sparkleFade .6s ease-out forwards;
-}
-
-@keyframes sparkleFade{
-  from{
-    opacity:1;
-    transform: scale(1);
-  }
-  to{
-    opacity:0;
-    transform: scale(2.5);
-  }
-}
-
-/* ===============================
-   🔧 FIX CLICK IFRAMES
-   =============================== */
-html, body{
-  pointer-events: auto !important;
-}
-
-/* CORAZONES ELEGANTES */
-.corazon-xat {
-    position: fixed;
-    font-size: 16px;
-    color: #f87070;
-    animation: corazonFlotar 3.5s ease-out forwards;
-    pointer-events: none;
-    z-index: 999999;
-    text-shadow: 0 0 6px rgba(219, 87, 87, 0.6);
-}
-
-@keyframes corazonFlotar {
-    0% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-120px) scale(1.4);
-        opacity: 0;
-    }
-}
-
-
-html, body, a, div, span, p, img, button, input, textarea, select, * {
-    cursor: none !important;
-}
-
-
-/* ===============================
-   💍 MARRIED INTEGRADO
-================================ */
-
-.married-card{
-  width:380px;
-  height:520px;
-  background:rgba(182, 12, 12, 0.95);
-  backdrop-filter:blur(22px);
-  border-radius:26px;
-  position:relative;
-  box-shadow:0 18px 35px rgba(120,40,40,.55);
-  overflow:hidden;
-  margin:auto;
-}
-
-.married-card::before{
-  content:"";
-  position:absolute;
-  inset:14px;
-  border-radius:20px;
-  border:1.5px solid rgba(255,255,255,.75);
-}
-
-.married-card .avatar-wrap{
-  position:absolute;
-  top:30px;
-  left:50%;
-  transform:translateX(-50%);
-  width:160px;
-  height:160px;
-}
-
-.married-card .avatar{
-  width:100%;
-  height:100%;
-  border-radius:50%;
-  overflow:hidden;
-  border:4px solid rgba(255,255,255,.85);
-  box-shadow:0 0 30px rgba(247, 71, 71, 0.9);
-}
-
-.married-card .avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.married-heart{
-  position:absolute;
-  right:-5px;
-  bottom:8px;
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  background:linear-gradient(145deg,#ffd6e1,#f4a8a8);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 0 18px rgba(255, 120, 120, 0.9);
-}
-
-.married-heart span{
-  font-size:18px;
-  color:#da0d0d;
-}
-
-.married-card .name{
-  position:absolute;
-  top:215px;
-  left:50%;
-  transform:translateX(-50%);
-  font-family:'Playfair Display',serif;
-  font-size:26px;
-  color:#f7d4d4;
-}
-
-.married-card .id{
-  position:absolute;
-  top:252px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:12px;
-  color:#ffdede;
-}
-
-.married-card .message{
-  position:absolute;
-  top:290px;
-  left:50%;
-  transform:translateX(-50%);
-  width:82%;
-  padding:16px;
-  text-align:center;
-  font-size:15px;
-  line-height:1.6;
-  color:#fdeef0;
-  background:rgba(247,168,168,.45);
-  backdrop-filter:blur(12px);
-  border-radius:18px;
-}
-
-.married-card .xatme{
-  position:absolute;
-  bottom:60px;
-  left:50%;
-  transform:translateX(-50%);
-}
-
-.married-card .xatme a{
-  padding:8px 28px;
-  border-radius:20px;
-  background:linear-gradient(145deg,#ffd6d6,#f4a8a8);
-  border:1px solid rgba(255,255,255,.75);
-  font-size:12px;
-  color:#9c2f2f;
-  text-decoration:none;
-  box-shadow:0 0 18px rgba(255, 120, 120, 0.8);
-  transition:.25s ease;
-}
-
-.married-card .xatme a:hover{
-  transform:scale(1.15);
-}
-
-/* ===============================
-   👥 FRIENDS INTEGRADO
-================================ */
-
-.friends-card{
-  width:420px;
-  height:520px;
-  border-radius:30px;
-  background:rgba(173, 9, 9, 0.95);
-  backdrop-filter:blur(20px);
-  box-shadow:0 15px 25px rgba(145,44,49,.55);
-  position:relative;
-  overflow:hidden;
-  margin:auto;
-}
-
-.friends-card::before{
-  content:"";
-  position:absolute;
-  inset:14px;
-  border-radius:22px;
-  border:1.5px solid rgba(255,255,255,.75);
-}
-
-.friends-title{
-  text-align:center;
-  margin-top:26px;
-  font-family:'Playfair Display',serif;
-  font-size:26px;
-  color:#f7d4d4;
-  letter-spacing:3px;
-}
-
-.friends-list{
-  margin:24px auto 0;
-  width:82%;
-  max-height:360px;
-  overflow-y:auto;
-  padding-right:6px;
-}
-
-.friend-item{
-  background:rgba(243, 107, 107, 0.55);
-  backdrop-filter:blur(12px);
-  border-radius:18px;
-  padding:10px 14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:12px;
-  box-shadow:0 4px 10px rgba(120,40,60,.25);
-}
-
-.friend-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.friends-card .avatar{
-  width:36px;
-  height:36px;
-  left: 10px;
-  top: 0px;
-  border-radius:50%;
-  background:linear-gradient(145deg,#ffd6e1,#f4a8b8);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:600;
-  font-size:12px;
-  color:#9c2f42;
-}
-
-.friend-name{
-  font-size:14px;
-  color:#fdeef0;
-}
-
-.friend-id{
-  font-size:11px;
-  color:#fbd0d6;
-}
-
-.friend-btn{
-  padding:6px 14px;
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,.6);
-  background:linear-gradient(145deg,#ffd6e1,#f4a8b8);
-  font-size:11px;
-  color:#9c2f42;
-  text-decoration:none;
-  transition:.25s ease;
-}
-
-.friend-btn:hover{
-  transform:scale(1.1);
-  box-shadow:0 0 20px rgba(255,170,180,.9);
-}
-
-/* ===============================
-   🖼 GALERIA INTEGRADA
-================================ */
-
-.gallery-box{
-  position:relative;
-  width:100%;
-  height:100%;
-
-  background:rgba(218, 46, 46, 0.55);
-
-  padding:22px;
-
-  border-radius:24px;            /* 🔴 REDONDEO REAL */
-  overflow:hidden;               /* 🔴 CLAVE PARA NO DEFORMAR */
-
-  backdrop-filter:blur(18px);
-  box-shadow:0 15px 35px rgba(120,20,20,.45);
-}
-
-
-.gallery-box::before{
-  content:"";
-  position:absolute;
-  inset:12px;
-  border-radius:20px;             /* proporcional al exterior */
-  border:1.1px solid rgba(255,255,255,.75);
-  pointer-events:none;
-}
-
-/* HEADER */
-.gallery-header{
-  position: relative;
-  text-align: center;
-  height: 110px;       /* 🔒 ALTURA FIJA */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-
-.gallery-header span{
-  position:relative;
-  display:inline-block;
-  top:-12px;
-  padding:0 18px;
-  font-size:40px;
-  letter-spacing:6px;
-  font-weight:400;
-
-  background:linear-gradient(
-    90deg,
-    #ffd6e8,
-    #f8d0e1,
-    #ffd6e8
-  );
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-
-  text-shadow:
-    0 0 6px rgba(252, 236, 236, 0.8),
-    0 0 14px rgba(255, 232, 232, 0.6);
-}
-
-.gallery-header span{
-  font-weight:200;
-  -webkit-text-stroke: 0.5px rgba(255, 200, 200, 0.6);
-}
-/* LÍNEA */
-.gallery-header::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom: 22px;        /* 🔒 POSICIÓN FIJA */
-  height:1px;
-  z-index:5;
-
-  background:linear-gradient(
-    90deg,
-    transparent,
-    rgba(250,216,216,.8),
-    rgba(255,220,235,1),
-    rgba(253,213,213,.8),
-    transparent
-  );
-
-  box-shadow:0 0 8px rgba(255, 180, 180, 0.8);
-}
-
-/* SLIDER */
-.slider{
-  margin-top: -40px;
-  position:relative;
-  width:100%;
-  height:420px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-    transform: translateY(-10px);
-}
-
-/* SLIDE */
-.slide{
-  position:absolute;
-  top:50px;
-  width:220px;
-  height:360px;
-  border-radius:18px;
-  overflow:hidden;
-  transition:.6s ease;
-  filter:brightness(.45);
-  transform:scale(.75);
-  box-shadow:0 12px 30px rgba(0,0,0,.25);
-}
-
-
-
-.slide img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.slide.active:hover::after{
-  opacity:1;
-}
-
-/* ACTIVO */
-.slide.active{
-  transform:scale(1);
-  filter:brightness(1);
-  opacity:1;
-  box-shadow:
-    0 0 0 2px rgba(255,255,255,.9),
-    0 0 35px rgba(247, 168, 168, 0.9);
-  z-index:3;
-}
-
-
-/* IZQ / DER */
-.slide.left{
-opacity:.6;
-  transform:translateX(-260px) scale(.8);
-  z-index:1;
-}
-
-.slide.right{
-  opacity:.6;
-  transform:translateX(260px) scale(.8);
-  z-index:1;
-}
-
-
-/* FLECHAS */
-.nav{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  width:46px;
-  height:46px;
-  border-radius:50%;
-  background:rgba(253, 225, 228, 0.692);
-  backdrop-filter:blur(10px);
-  color:#e95f66;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  font-size:22px;
-  box-shadow:0 8px 20px rgba(120,40,90,.35);
-  transition:.3s ease;
-  z-index:5;
-}
-
-.nav:hover{
-  background:#ffd6e8;
-  transform:translateY(-50%) scale(1.15);
-}
-
-.nav.prev{left:18px}
-.nav.next{right:18px}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ByCobra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Agbalumo&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],display:['Agbalumo','cursive']},colors:{dark:{900:'#18181b',800:'#27272a',700:'#3f3f46',600:'#52525b'},brand:{400:'#60a5fa',500:'#3b82f6',600:'#2563eb'}}}}};
+    </script>
+    <style>
+        body {background-color:#18181b;color:#e2e8f0;overflow-x:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+        img {-webkit-user-drag:none;user-drag:none;pointer-events:none;}
+        .pointer-events-auto {pointer-events:auto;}
+        ::-webkit-scrollbar {width:8px;}
+        ::-webkit-scrollbar-track {background:#18181b;}
+        ::-webkit-scrollbar-thumb {background:#3f3f46;border-radius:4px;}
+        ::-webkit-scrollbar-thumb:hover {background:#3b82f6;}
+        .card-hover {transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+        .card-hover:hover {transform:translateY(-5px);box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);border-color:#3b82f6;}
+        .text-gradient {background:linear-gradient(to right,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:hue 5s infinite linear;}
+        @keyframes hue {from {filter:hue-rotate(0deg);} to {filter:hue-rotate(360deg);}}
+        .submenu-transition {transition:max-height 0.3s ease-in-out,opacity 0.3s ease-in-out;max-height:0;opacity:0;overflow:hidden;}
+        .submenu-open {max-height:500px;opacity:1;}
+        .rotate-180 {transform:rotate(180deg);}
+        @media print {html,body {display:none !important;}}
+    </style>
 </head>
+<body class="flex h-screen w-full antialiased selection:bg-brand-500 selection:text-white" oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
 
-<body>
-
-<!-- INTRO -->
-<div class="intro" id="intro">
-  <div class="heart-wrapper">
-    <div class="heart-enter" onclick="enterSite()">
-
-      <!-- corazón -->
-      <div class="heart-glass"></div>
-
-      <!-- TEXTO ARRIBA -->
-      <span class="heart-text">Entrar</span>
-
-      <!-- mini corazones -->
-      <i class="mini-heart mh1"></i>
-      <i class="mini-heart mh2"></i>
-      <i class="mini-heart mh3"></i>
-      <i class="mini-heart mh4"></i>
-
-    </div>
-  </div>
-</div>
-
-<!-- TRANSICIÓN PREMIUM -->
-<div id="page-transition"></div>
-
-<!-- ===============================
-     CONTENIDO PRINCIPAL
-================================ -->
-<div class="page-content">
-
-  <canvas id="heartsCanvas"></canvas>
-
-  <div class="wrapper">
-
-    <!-- BOTONES -->
-    <div class="menu-left">
- <a href="#" onclick="abrirMarried(); return false;">♡ Married ♡</a>
-  <a href="#" onclick="abrirFriend(); return false;">♡ Friend ♡</a>
-      <a href="#" onclick="abrirGaleria(); return false;">♡ Galeria ♡</a>
-
-      <div class="btn-player">
-        <a href="#" onclick="togglePlayer(); return false;">♡ Musica ♡</a>
-
-        <div class="player-drop" id="playerDrop">
-          <div class="player-glass">
-            <div class="music-title">Musica</div>
-            <div class="song-name animated-song" id="songName">Cargando...</div>
-
-            <div class="player-controls">
-              <button id="prevBtn">⏮</button>
-              <button id="playPauseBtn">▶</button>
-              <button id="nextBtn">⏭</button>
+    <aside class="w-20 lg:w-64 flex-shrink-0 bg-dark-800 border-r border-dark-700 flex flex-col h-full z-20 shadow-xl overflow-hidden">
+        <div class="flex-shrink-0 p-4 flex flex-row items-center border-b border-dark-700 bg-dark-800/90 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-brand-600/10 to-transparent pointer-events-none"></div>
+            <img src="https://xatimg.com/image/QERnZ4Mo4lAH.gif" class="w-12 h-12 rounded-full border-2 border-brand-500 object-cover shadow-lg relative z-10 flex-shrink-0 pointer-events-auto">
+            <div class="ml-3 hidden lg:block relative z-10 flex-1 min-w-0">
+                <p class="text-sm font-bold text-white tracking-wide leading-tight truncate">๖ۣByCobra</p>
+                <p class="text-xs text-brand-400 mt-0.5 truncate">ID: 242020023</p>
             </div>
-
-            <input type="range" id="progress" class="progress" value="0">
-          </div>
-        </div>
-      </div>
-    </div>
-
-<!-- CARD -->
-<div class="card">
-
-  <!-- AVATAR -->
-  <div class="avatar-wrap">
-    <div class="avatar">
-      <img src="https://xatimg.com/image/2M7QTBqoHovv.png">
-    </div>
-
-    <!-- ICONO HOME -->
-    <a href="https://xat.com" target="_blank" class="home-icon" title="Argentina">
-      <img src="https://xatimg.com/image/Vi79A8RPQwnf.png" alt="Home">
-    </a>
-    
-  </div>
-
-  <!-- TEXTO -->
-  <div class="name">♥ 𝓓𝓪𝔂 ♥</div>
-  <div class="subtitle">♡ Bienvenidos a mi xatspace ♡</div>
-
-  <div class="bio" id="typingText">
- ᴇʟ ᴏʙᴊᴇᴛɪᴠᴏ ᴇꜱ ꜱɪᴍᴘʟᴇ: ꜱᴇʀ ᴍᴇᴊᴏʀ Qᴜᴇ ᴀʏᴇʀ.
-  </div>
-
-  
-  <!-- FIRMA -->
-  <div class="firma">
-    <img src="Firma">
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">✦ By Fabricio ✦</div>
-
-</div>
-
-<!-- MODAL GALERIA -->
-<div class="modal-overlay" id="galeriaModal">
-  <div class="modal-content">
-
-    <span class="modal-close" onclick="cerrarGaleria()">×</span>
-
-    <div class="gallery-box">
-
-      <div class="gallery-header">
-        <span>⭐︎ɢᴀʟᴇʀɪᴀ⭐︎</span>
-      </div>
-
-      <div class="slider" id="slider">
-
-        <div class="slide active">
-          <img src="https://xatimg.com/image/vo8vZADfd8Na.png">
         </div>
 
-        <div class="slide right">
-          <img src="https://xatimg.com/image/jkqHkqHEGzFb.png">
+        <div class="flex-1 overflow-y-auto w-full overflow-x-hidden">
+            <nav class="p-3 space-y-1 w-full">
+                <button onclick="changeView('home')" id="nav-home" class="nav-btn w-full flex items-center p-2 lg:p-3 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700 transition-colors group active-nav">
+                    <i class="ph ph-squares-four text-xl lg:text-2xl group-hover:text-brand-500 transition-colors flex-shrink-0"></i>
+                    <span class="hidden lg:block ml-3 font-medium text-sm truncate">Home</span>
+                </button>
+                <p class="hidden lg:block px-3 text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2 truncate">Categorías</p>
+                <div class="w-full">
+                    <button onclick="toggleMenu('gifs')" class="w-full flex items-center p-2 lg:p-3 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700 transition-colors group">
+                        <i class="ph ph-gif text-xl lg:text-2xl text-brand-400 flex-shrink-0"></i>
+                        <span class="hidden lg:block ml-3 font-medium text-sm truncate">GIFS</span>
+                        <i id="gifs-caret" class="ph ph-caret-down hidden lg:block ml-auto transition-transform duration-300 flex-shrink-0"></i>
+                    </button>
+                    <div id="gifs-submenu" class="submenu-transition hidden lg:flex flex-col space-y-1 mt-1 border-l-2 border-dark-700 ml-5 pl-2 w-full">
+                        <button onclick="changeView('gifs-new')" id="nav-gifs-new" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-sparkle text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">New Style</span></button>
+                        <button onclick="changeView('gifs-girls')" id="nav-gifs-girls" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-crown text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Girls</span></button>
+                        <button onclick="changeView('gifs-boys')" id="nav-gifs-boys" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-soccer-ball text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Boys</span></button>
+                        <button onclick="changeView('gifs-dj')" id="nav-gifs-dj" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-headphones text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">DJ</span></button>
+                        <button onclick="changeView('gifs-lovers')" id="nav-gifs-lovers" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-heart text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Lovers</span></button>
+                        <button onclick="changeView('gifs-christmas')" id="nav-gifs-christmas" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-tree-evergreen text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Christmas</span></button>
+                        <button onclick="changeView('gifs-halloween')" id="nav-gifs-halloween" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-ghost text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Halloween</span></button>
+                        <button onclick="changeView('gifs-mixed')" id="nav-gifs-mixed" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-trophy text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Mixed</span></button>
+                    </div>
+                </div>
+                <div class="w-full mt-2">
+                    <button onclick="toggleMenu('pcback')" class="w-full flex items-center p-2 lg:p-3 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700 transition-colors group">
+                        <i class="ph ph-desktop text-xl lg:text-2xl text-brand-400 flex-shrink-0"></i>
+                        <span class="hidden lg:block ml-3 font-medium text-sm truncate">PCBACK</span>
+                        <i id="pcback-caret" class="ph ph-caret-down hidden lg:block ml-auto transition-transform duration-300 flex-shrink-0"></i>
+                    </button>
+                    <div id="pcback-submenu" class="submenu-transition hidden lg:flex flex-col space-y-1 mt-1 border-l-2 border-dark-700 ml-5 pl-2 w-full">
+                        <button onclick="changeView('pcback-normal')" id="nav-pcback-normal" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-image-square text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Pcback</span></button>
+                        <button onclick="changeView('pcback-animados')" id="nav-pcback-animados" class="nav-btn w-full flex items-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors"><i class="ph ph-play-circle text-lg flex-shrink-0"></i><span class="ml-3 text-sm truncate">Animados</span></button>
+                    </div>
+                </div>
+                <button onclick="changeView('fondo')" id="nav-fondo" class="nav-btn w-full flex items-center p-2 lg:p-3 rounded-lg text-gray-300 hover:text-white hover:bg-dark-700 transition-colors group mt-2">
+                    <i class="ph ph-image text-xl lg:text-2xl group-hover:text-brand-500 transition-colors flex-shrink-0"></i>
+                    <span class="hidden lg:block ml-3 font-medium text-sm truncate">FONDOS</span>
+                </button>
+            </nav>
         </div>
+    </aside>
 
-        <div class="slide left">
-          <img src="https://xatimg.com/image/pOoVjRhJt0sl.png">
+    <main class="flex-1 overflow-y-auto relative flex flex-col w-full min-w-0" id="main-scroll-area">
+        <header class="h-20 border-b border-dark-700 flex items-center px-4 md:px-8 sticky top-0 bg-dark-900/90 backdrop-blur-md z-10 w-full flex-shrink-0">
+            <h1 id="page-title" class="text-xl md:text-2xl font-semibold text-white tracking-wide truncate w-full">Diseños</h1>
+        </header>
+        <div id="content-area" class="p-4 md:p-6 lg:p-8 w-full max-w-7xl mx-auto flex-1 min-w-0"></div>
+    </main>
+
+    <div id="lightbox" onclick="closeLightbox()" class="fixed inset-0 z-[100] hidden bg-black/95 backdrop-blur-sm flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <button onclick="event.stopPropagation(); closeLightbox()" class="absolute top-16 md:top-20 right-4 lg:right-8 text-gray-400 hover:text-white transition-colors bg-dark-800 hover:bg-brand-600 p-2 lg:p-3 rounded-full shadow-lg z-50">
+            <i class="ph ph-x text-2xl lg:text-3xl"></i>
+        </button>
+        <button onclick="event.stopPropagation(); prevImage()" class="absolute left-2 sm:left-4 lg:left-8 text-gray-400 hover:text-white transition-colors bg-dark-800/80 hover:bg-brand-600 p-2 sm:p-3 lg:p-4 rounded-full shadow-lg z-50">
+            <i class="ph ph-caret-left text-2xl lg:text-4xl"></i>
+        </button>
+        <button onclick="event.stopPropagation(); nextImage()" class="absolute right-2 sm:right-4 lg:right-8 text-gray-400 hover:text-white transition-colors bg-dark-800/80 hover:bg-brand-600 p-2 sm:p-3 lg:p-4 rounded-full shadow-lg z-50">
+            <i class="ph ph-caret-right text-2xl lg:text-4xl"></i>
+        </button>
+        <div class="relative w-full max-w-[95vw] sm:max-w-[85vw] max-h-[85vh] flex flex-col items-center justify-center pointer-events-none">
+            <img id="lightbox-img" class="max-h-[80vh] max-w-full object-contain drop-shadow-2xl rounded-lg pointer-events-auto">
+            <div id="lightbox-caption" class="absolute -bottom-16 left-1/2 -translate-x-1/2 bg-brand-600 px-4 py-2 sm:px-6 sm:py-2 rounded-full text-white font-bold text-sm sm:text-base tracking-wide shadow-lg border border-brand-400 whitespace-nowrap"></div>
         </div>
-
-        <div class="slide right">
-          <img src="https://xatimg.com/image/T6OiPQxLOaDJ.png">
-        </div> 
-        <!-- AGREGA MÁS SLIDES AQUÍ -->
-        <!--
-        <div class="slide">
-          <img src="URL_IMAGEN">
-        </div>
-        -->
-
-      </div>
-
-      <div class="nav prev" onclick="prev()">❮</div>
-      <div class="nav next" onclick="next()">❯</div>
-
     </div>
 
-  </div>
-</div>
-
-
-<!-- MODAL FRIEND -->
-<div class="modal-overlay" id="friendModal">
-  <div class="modal-content">
-
-    <span class="modal-close" onclick="cerrarFriend()">×</span>
-
-    <div class="friends-card">
-
-      <div class="friends-title">♡ Friends ♡</div>
-
-      <div class="friends-list">
-
-        <!-- FRIEND 1 -->
-        <div class="friend-item">
-          <div class="friend-left">
-            <div class="avatar">Lx</div>
-            <div class="friend-info">
-              <div class="friend-name">Lex</div>
-              <div class="friend-id">200003</div>
-            </div>
-          </div>
-
-          <a class="friend-btn" href="https://xat.me/200003" target="_blank">
-            XAT.ME
-          </a>
-        </div>
-
-        <!-- FRIEND 2 -->
-        <div class="friend-item">
-          <div class="friend-left">
-            <div class="avatar">Ky</div>
-            <div class="friend-info">
-              <div class="friend-name">Key</div>
-              <div class="friend-id">148527139</div>
-            </div>
-          </div>
-
-          <a class="friend-btn" href="https://xat.me/148527139" target="_blank">
-            XAT.ME
-          </a>
-        </div>
-
-        <!-- FRIEND 3 -->
-        <div class="friend-item">
-          <div class="friend-left">
-            <div class="avatar">Jk</div>
-            <div class="friend-info">
-              <div class="friend-name">Joker</div>
-              <div class="friend-id">843870831</div>
-            </div>
-          </div>
-
-          <a class="friend-btn" href="https://xat.me/843870831" target="_blank">
-            XAT.ME
-          </a>
-        </div>
-
-        <!-- FRIEND 4 -->
-        <div class="friend-item">
-          <div class="friend-left">
-            <div class="avatar">Ln</div>
-            <div class="friend-info">
-              <div class="friend-name">Leonel</div>
-              <div class="friend-id">1536087746</div>
-            </div>
-          </div>
-
-          <a class="friend-btn" href="https://xat.me/1536087746" target="_blank">
-            XAT.ME
-          </a>
-        </div>
-
-        <!-- FRIEND 5 -->
-        <div class="friend-item">
-          <div class="friend-left">
-            <div class="avatar">Gb</div>
-            <div class="friend-info">
-              <div class="friend-name">Gaby</div>
-              <div class="friend-id">7700077</div>
-            </div>
-          </div>
-
-          <a class="friend-btn" href="https://xat.me/7700077" target="_blank">
-            XAT.ME
-          </a>
-        </div>
-
-        <!-- FRIEND 6 -->
-        <div class="friend-item">
-          <div class="friend-left">
-            <div class="avatar">Kn</div>
-            <div class="friend-info">
-              <div class="friend-name">Kaneh</div>
-              <div class="friend-id">96319421</div>
-            </div>
-          </div>
-
-          <a class="friend-btn" href="https://xat.me/96319421" target="_blank">
-            XAT.ME
-          </a>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-</div>
-
-<!-- MODAL MARRIED -->
-<div class="modal-overlay" id="marriedModal">
-  <div class="modal-content">
-
-    <span class="modal-close" onclick="cerrarMarried()">×</span>
-
-    <div class="married-card">
-
-      <div class="avatar-wrap">
-        <div class="avatar">
-          <img src="https://xatimg.com/image/CRcetboPhT1f.jpg" alt="Pareja">
-        </div>
-        <div class="married-heart"><span>❤</span></div>
-      </div>
-
-      <div class="name">Fabricio</div>
-      <div class="id">1537898900</div>
-
-      <div class="message">
-  Mi amor te quiero..
-      </div>
-
-      <div class="xatme">
-        <a href="https://xat.me/1537898900" target="_blank">XAT.ME</a>
-      </div>
-
-
-    </div>
-
-  </div>
-</div>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const element = document.getElementById("typingText");
-  if (!element) return;
-
-  // Evita que se ejecute más de una vez
-  if (element.dataset.typed === "true") return;
-  element.dataset.typed = "true";
-
-  const text = element.textContent.trim();
-  element.textContent = "";
-
-  let index = 0;
-  const speed = 65;
-
-  function typeEffect() {
-    if (index < text.length) {
-      element.textContent += text.charAt(index);
-      index++;
-      setTimeout(typeEffect, speed);
-    }
-  }
-
-  typeEffect();
-});
-
-function abrirGaleria(){
-  document.getElementById("galeriaModal").classList.add("active");
-}
-
-function cerrarGaleria(){
-  document.getElementById("galeriaModal").classList.remove("active");
-}
-
-const canvas = document.getElementById("heartsCanvas");
-const ctx = canvas.getContext("2d");
-
-let w, h;
-function resize(){
-  w = canvas.width = window.innerWidth;
-  h = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
-
-const hearts = [];
-const HEART_COUNT = 40;
-
-function createHeart(startTop = true){
-  return {
-    x: Math.random() * w,
-    y: startTop ? -30 : Math.random() * h,
-    size: 6 + Math.random() * 6,
-    speed: 0.25 + Math.random() * 0.6,
-    drift: (Math.random() - 0.5) * 0.2,
-    alpha: 0.12 + Math.random() * 0.25
-  };
-}
-
-/* Inicial */
-for(let i = 0; i < HEART_COUNT; i++){
-  hearts.push(createHeart(false));
-}
-
-function drawHeart(x, y, size, alpha, scaleX = 1.1, scaleY = 0.75){
-  ctx.save();
-  ctx.translate(x, y);
-
-  /* escala general + aplanado */
-  ctx.scale(size * scaleX, size * scaleY);
-
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.bezierCurveTo(-0.5, -0.6, -1.4, 0.3, 0, 1.6);
-  ctx.bezierCurveTo(1.4, 0.3, 0.5, -0.6, 0, 0);
-  ctx.closePath();
-
-  ctx.fillStyle = `rgba(255, 215, 225, ${alpha})`;
-  ctx.fill();
-
-  ctx.restore();
-}
-
-
-function animate(){
-  ctx.clearRect(0, 0, w, h);
-
-  hearts.forEach((heart, i) => {
-    heart.y += heart.speed;
-    heart.x += heart.drift;
-
-    drawHeart(heart.x, heart.y, heart.size, heart.alpha);
-
-    /* CUANDO SALE DE PANTALLA → NUEVO DESDE ARRIBA */
-    if(heart.y > h + 40){
-      hearts[i] = createHeart(true);
-    }
-  });
-
-  requestAnimationFrame(animate);
-}
-
-animate();
-
-let songs = [
-  { name: "Karol G - Anuel AA - Culpables", url: "music/Karol G - Anuel AA - Culpables.mp3" },
-  { name: "Anuel AA - Amanece", url: "music/Anuel AA - Amanece.mp3" },
-  { name: "Matisse - Reik - Eres Tu", url: "music/Matisse - Reik - Eres Tu.mp3" }
-];
-
-let audio = new Audio();
-let currentIndex = 0;
-let isPlaying = false;
-
-const playPauseBtn = document.getElementById("playPauseBtn");
-const nextBtn = document.getElementById("nextBtn");
-const prevBtn = document.getElementById("prevBtn");
-const songName = document.getElementById("songName");
-const progress = document.getElementById("progress");
-
-function loadSong(autoplay = false){
-  audio.src = songs[currentIndex].url;
-  songName.textContent = songs[currentIndex].name;
-
-  if(autoplay){
-    audio.play().then(()=>{
-      isPlaying = true;
-      playPauseBtn.textContent = "⏸";
-    }).catch(()=>{});
-  }
-}
-
-playPauseBtn.addEventListener("click", () => {
-  if(audio.paused){
-    audio.play();
-    isPlaying = true;
-    playPauseBtn.textContent = "⏸";
-  }else{
-    audio.pause();
-    isPlaying = false;
-    playPauseBtn.textContent = "▶";
-  }
-});
-
-nextBtn.onclick = () => {
-  currentIndex = (currentIndex + 1) % songs.length;
-  loadSong(true);
-};
-
-prevBtn.onclick = () => {
-  currentIndex = (currentIndex - 1 + songs.length) % songs.length;
-  loadSong(true);
-};
-
-// ▶ cuando termina la canción → pasa a la siguiente automáticamente
-audio.addEventListener("ended", () => {
-  currentIndex = (currentIndex + 1) % songs.length;
-  loadSong(true);
-});
-
-
-progress.addEventListener("input", () => {
-  if(audio.duration){
-    audio.currentTime = (progress.value / 100) * audio.duration;
-  }
-});
-
-// Carga inicial SIN reproducir
-loadSong(false);
-
-
-function togglePlayer(){
-  document
-    .getElementById("playerDrop")
-    .classList.toggle("active");
-}
-
-/* Bloquear clic derecho */
-document.addEventListener('contextmenu', function(e){
-  e.preventDefault();
-});
-
-/* Bloquear selección de texto */
-document.addEventListener('selectstart', function(e){
-  e.preventDefault();
-});
-
-/* Bloquear arrastrar imágenes/texto */
-document.addEventListener('dragstart', function(e){
-  e.preventDefault();
-});
-
-function enterSite(){
-  const intro = document.getElementById("intro");
-  if(!intro) return;
-
-  intro.style.pointerEvents = "none";
-
-  // 🔥 animación de entrada
-  document.body.classList.add("entered");
-
-  // 🔥 autoplay seguro (ya hubo click)
-  audio.play().then(()=>{
-    isPlaying = true;
-    playPauseBtn.textContent = "⏸";
-  }).catch(()=>{});
-
-  intro.style.transition = "opacity 1s ease";
-  intro.style.opacity = "0";
-
-  setTimeout(() => {
-    intro.remove();
-  }, 1100);
-}
-
-
-function spawnSparkle(){
-  const sparkle = document.createElement("div");
-  sparkle.className = "heart-sparkle";
-  sparkle.style.left = posX + "px";
-  sparkle.style.top = posY + "px";
-  document.body.appendChild(sparkle);
-
-  setTimeout(() => sparkle.remove(), 600);
-}
-
-document.addEventListener('mousemove', spawnSparkle);
-window.addEventListener("message", spawnSparkle);
-
-
-document.addEventListener("mousemove", function(e) {
-    let corazon = document.createElement("div");
-    corazon.className = "corazon-xat";
-    corazon.innerHTML = "❤";
-    corazon.style.left = (e.clientX + 5) + "px";
-    corazon.style.top = (e.clientY + 5) + "px";
-
-    document.body.appendChild(corazon);
-
-    setTimeout(() => {
-        corazon.remove();
-    }, 3500);
-});
-
-
-function abrirFriend(){
-  document.getElementById("friendModal").classList.add("active");
-}
-
-function cerrarFriend(){
-  document.getElementById("friendModal").classList.remove("active");
-}
-
-function abrirMarried(){
-  document.getElementById("marriedModal").classList.add("active");
-}
-
-function cerrarMarried(){
-  document.getElementById("marriedModal").classList.remove("active");
-}
-
-const slides = document.querySelectorAll('#galeriaModal .slide');
-let current = 0;
-
-function update(){
-  slides.forEach((s,i)=>{
-    s.className = 'slide';
-    if(i === current) s.classList.add('active');
-    else if(i === (current - 1 + slides.length) % slides.length) s.classList.add('left');
-    else if(i === (current + 1) % slides.length) s.classList.add('right');
-  });
-}
-
-function next(){
-  current = (current + 1) % slides.length;
-  update();
-}
-
-function prev(){
-  current = (current - 1 + slides.length) % slides.length;
-  update();
-}
-
-</script>
-
+    <script>
+        document.addEventListener('contextmenu', e=>e.preventDefault());
+        document.addEventListener('keydown', e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C'))||(e.ctrlKey&&(e.key==='U'||e.key==='S'||e.key==='P'||e.key==='C'||e.key==='A'))||(e.metaKey&&(e.key==='u'||e.key==='s'||e.key==='p'||e.key==='c'||e.key==='a'))||(e.metaKey&&e.altKey&&(e.key==='i'||e.key==='j'||e.key==='c'))){e.preventDefault();return false;}});
+
+        // ==========================================
+        // BASE DE DATOS DE LINKS: EDITA AQUI
+        // ==========================================
+        const categoriesData = {
+            'new': { marquee: "⭐ Gifs New Style Exclusive ⭐", prefix: "New - ", items: [
+                { url: "https://xatimg.com/image/CorFy26dDF85.gif" }, { url: "https://i.imgur.com/QkhkYXo.gif" }, { url: "https://i.imgur.com/LyUeb2P.gif" }, { url: "https://i.imgur.com/bpD4knA.gif" }, { url: "https://i.imgur.com/6M1IatR.gif" },
+                { url: "https://i.imgur.com/PnNRIRp.gif" }, { url: "https://i.imgur.com/xSfIc0i.gif" }, { url: "https://i.imgur.com/G5KUUU6.gif" }, { url: "https://i.imgur.com/wk9x2tw.gif" }, { url: "https://i.imgur.com/ceUKI7W.gif" },
+                { url: "https://i.imgur.com/HWVjruy.gif" }, { url: "https://i.imgur.com/wFkwFsX.gif" }, { url: "https://i.imgur.com/yWkfDty.gif" }, { url: "https://i.imgur.com/mletRiu.gif" }, { url: "https://i.imgur.com/YvqCkKE.gif" },
+                { url: "https://i.imgur.com/ePic3W3.gif" }, { url: "https://i.imgur.com/JSi1q0q.gif" }, { url: "https://i.imgur.com/RPbYpBL.gif" }, { url: "https://i.imgur.com/ExFe6iv.gif" }, { url: "https://i.imgur.com/2LwXYtA.gif" },
+                { url: "https://i.imgur.com/4h804a0.gif" }, { url: "https://i.imgur.com/8EDNM1L.gif" }, { url: "https://i.imgur.com/zc3oHtB.gif" }, { url: "https://i.imgur.com/f3EL9VX.gif" }, { url: "https://i.imgur.com/P9V2kA7.gif" },
+                { url: "https://i.imgur.com/oLNbQe6.gif" }, { url: "https://i.imgur.com/qgE8LxH.gif" }, { url: "https://i.imgur.com/GEeU7QH.gif" }, { url: "https://i.imgur.com/E40aqN9.gif" }, { url: "https://i.imgur.com/Bu5ktFZ.gif" },
+                { url: "https://i.imgur.com/VQdrW6O.gif" }, { url: "https://i.imgur.com/n9SnGTA.gif" }, { url: "https://i.imgur.com/Yc7YWGR.gif" }, { url: "https://i.imgur.com/ngBrFUT.gif" }, { url: "https://i.imgur.com/5zVy7Gn.gif" },
+                { url: "https://i.imgur.com/vCNHIOr.gif" }, { url: "https://i.imgur.com/6pUm6z7.gif" }, { url: "https://i.imgur.com/FJKvbon.gif" }, { url: "https://i.imgur.com/6maXR0q.gif" }, { url: "https://i.imgur.com/WhV0YBq.gif" },
+                { url: "https://i.imgur.com/zTV5rDb.gif" }, { url: "https://i.imgur.com/MXQP96b.gif" }, { url: "https://i.imgur.com/qf653hR.gif" }, { url: "https://i.imgur.com/LoTu3WO.gif" }, { url: "https://i.imgur.com/LixtvqW.gif" },
+                { url: "https://i.imgur.com/GCSPd8R.gif" }, { url: "https://i.imgur.com/mw9IlIs.gif" }, { url: "https://i.imgur.com/PXz3sef.gif" }, { url: "https://i.imgur.com/Uk65EWw.gif" }, { url: "https://i.imgur.com/DUxUjju.gif" },
+                { url: "https://i.imgur.com/GddNFrX.gif" }, { url: "https://i.imgur.com/fmNNEev.gif" }, { url: "https://i.imgur.com/28xWcym.gif" }, { url: "https://i.imgur.com/lZLq1wZ.gif" }, { url: "https://i.imgur.com/Crf2TeQ.gif" },
+                { url: "https://i.imgur.com/lF7ai1B.gif" }, { url: "https://i.imgur.com/TUy90JQ.gif" }, { url: "https://i.imgur.com/EThwGWl.gif" }, { url: "https://i.imgur.com/Loycdqf.gif" }, { url: "https://i.imgur.com/R3VLKBg.gif" },
+                { url: "https://i.imgur.com/SZkfl8R.gif" }, { url: "https://i.imgur.com/m1bvgGW.gif" }, { url: "https://i.imgur.com/O72Yruj.gif" }, { url: "https://i.imgur.com/hwHHlLM.gif" }, { url: "https://i.imgur.com/OjC0FxI.gif" },
+                { url: "https://i.imgur.com/oPEYrAi.gif" }, { url: "inserte link aquí" }, { url: "https://i.imgur.com/cniolLC.gif" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'girls': { marquee: "👑 Gifs for Girls 👑", prefix: "Girls - ", items: [
+                { url: "https://i.imgur.com/hljCHn0.gif" }, { url: "https://i.imgur.com/iPNKu8I.gif" }, { url: "https://i.imgur.com/jrhJ9sQ.gif" }, { url: "https://i.imgur.com/D2hTohw.gif" }, { url: "https://i.imgur.com/oA4sgqt.gif" },
+                { url: "https://i.imgur.com/YTYq7OD.gif" }, { url: "https://i.imgur.com/n5p2E2P.gif" }, { url: "https://i.imgur.com/3UD4XlM.gif" }, { url: "https://i.imgur.com/Tg7W0LL.gif" }, { url: "https://i.imgur.com/gXW8FH7.gif" },
+                { url: "https://i.imgur.com/l3QJXgL.gif" }, { url: "https://i.imgur.com/dlZzgeM.gif" }, { url: "https://i.imgur.com/jNpzP8i.gif" }, { url: "https://i.imgur.com/zc3eY7Z.gif" }, { url: "https://i.imgur.com/yU6yqeY.gif" },
+                { url: "https://i.imgur.com/MAJx1v0.gif" }, { url: "https://i.imgur.com/z5koUrZ.gif" }, { url: "https://i.imgur.com/ajBigWC.gif" }, { url: "https://i.imgur.com/uHG384A.gif" }, { url: "https://i.imgur.com/xs1kO1v.gif" },
+                { url: "https://i.imgur.com/WSuhXTu.gif" }, { url: "https://i.imgur.com/0c4sf5l.gif" }, { url: "https://i.imgur.com/KhXXHRX.gif" }, { url: "https://i.imgur.com/ZYaq0Bt.gif" }, { url: "https://i.imgur.com/tjVoTWm.gif" },
+                { url: "https://i.imgur.com/Kx3eVnH.gif" }, { url: "https://i.imgur.com/zfpFc0A.gif" }, { url: "https://i.imgur.com/5iM7gQc.gif" }, { url: "https://i.imgur.com/VwzUKXO.gif" }, { url: "https://i.imgur.com/ZMmMdHu.gif" },
+                { url: "https://i.imgur.com/RRATvoT.gif" }, { url: "https://i.imgur.com/0968338.gif" }, { url: "https://i.imgur.com/ScwX2Sv.gif" }, { url: "https://i.imgur.com/PIh7bwF.gif" }, { url: "https://i.imgur.com/0ROUn89.gif" },
+                { url: "https://i.imgur.com/zKBHrro.gif" }, { url: "https://i.imgur.com/NM241AE.gif" }, { url: "https://i.imgur.com/xQJp9wy.gif" }, { url: "https://i.imgur.com/xQPAC11.gif" }, { url: "https://i.imgur.com/cu1hNRa.gif" },
+                { url: "https://i.imgur.com/sBnZxNs.gif" }, { url: "https://i.imgur.com/8INdOsC.gif" }, { url: "https://i.imgur.com/hXB3F3n.gif" }, { url: "https://i.imgur.com/QDABLUC.gif" }, { url: "https://i.imgur.com/zmuvx3y.gif" },
+                { url: "https://i.imgur.com/AMesDKy.gif" }, { url: "https://i.imgur.com/58GJz5L.gif" }, { url: "https://i.imgur.com/VOWb9I2.gif" }, { url: "https://i.imgur.com/c2dUY15.gif" }, { url: "https://i.imgur.com/zJkz3e9.gif" },
+                { url: "https://i.imgur.com/XeMZCHN.gif" }, { url: "https://i.imgur.com/97xe3Dt.gif" }, { url: "https://i.imgur.com/mAIhWet.gif" }, { url: "https://i.imgur.com/IhitbRa.gif" }, { url: "https://i.imgur.com/QCC3mM9.gif" },
+                { url: "https://i.imgur.com/safiJWf.gif" }, { url: "https://i.imgur.com/Pjdh7wA.gif" }, { url: "https://i.imgur.com/phT5aCv.gif" }, { url: "https://i.imgur.com/ge95rJA.gif" }, { url: "https://i.imgur.com/Q0PPlBv.gif" },
+                { url: "https://i.imgur.com/nRx0Q92.gif" }, { url: "https://i.imgur.com/SGkO1pK.gif" }, { url: "https://i.imgur.com/6Fy84K5.gif" }, { url: "https://i.imgur.com/g5X0Rf7.gif" }, { url: "https://i.imgur.com/lmjn7AV.gif" },
+                { url: "https://i.imgur.com/G67ztcQ.gif" }, { url: "https://i.imgur.com/Q3DZG4r.gif" }, { url: "https://i.imgur.com/61NIDPD.gif" }, { url: "https://i.imgur.com/MJRbWU2.gif" }, { url: "https://i.imgur.com/azK1pdo.gif" },
+                { url: "https://i.imgur.com/zZX3aPR.gif" }, { url: "https://i.imgur.com/TZqGXAs.gif" }, { url: "https://i.imgur.com/b4KKgqa.gif" }, { url: "https://i.imgur.com/QD2aTju.gif" }, { url: "https://i.imgur.com/QkzMOdY.gif" },
+                { url: "https://i.imgur.com/QWcXFwT.gif" }, { url: "https://i.imgur.com/nYdhej3.gif" }, { url: "https://i.imgur.com/RzQZjMh.gif" }, { url: "https://i.imgur.com/4y6fWgu.gif" }, { url: "https://i.imgur.com/lh70FEu.gif" },
+                { url: "https://i.imgur.com/DOUxCAL.gif" }, { url: "https://i.imgur.com/VnJ9OzG.gif" }, { url: "https://i.imgur.com/NYC8pII.gif" }, { url: "https://i.imgur.com/U1x9gXv.gif" }, { url: "https://i.imgur.com/ZucTPyh.gif" },
+                { url: "https://i.imgur.com/HUjQxNI.gif" }, { url: "https://i.imgur.com/990QsjZ.gif" }, { url: "https://i.imgur.com/5xJKDXt.gif" }, { url: "https://i.imgur.com/il1i8PI.gif" }, { url: "https://i.imgur.com/t2hV0yU.gif" },
+                { url: "https://i.imgur.com/nbGGLyp.gif" }, { url: "https://i.imgur.com/AuW5aEi.gif" }, { url: "https://i.imgur.com/5XE8t7a.gif" }, { url: "https://i.imgur.com/0RJQfgL.gif" }, { url: "https://i.imgur.com/1g7uriO.gif" },
+                { url: "https://i.imgur.com/X7hYsz5.gif" }, { url: "https://i.imgur.com/l8XqWZI.gif" }, { url: "https://i.imgur.com/6aBV4Av.gif" }, { url: "https://i.imgur.com/MpHWoFp.gif" }, { url: "https://i.imgur.com/eiWLyvq.gif" },
+                { url: "https://i.imgur.com/TAFtumH.gif" }, { url: "https://i.imgur.com/MgybwWH.gif" }, { url: "https://i.imgur.com/GcJ26xH.gif" }, { url: "https://i.imgur.com/M4PYkas.gif" }, { url: "https://i.imgur.com/rGYp7le.gif" },
+                { url: "https://i.imgur.com/e8lRhDB.gif" }, { url: "https://i.imgur.com/hKz3xRV.gif" }, { url: "https://i.imgur.com/t1oSaUF.gif" }, { url: "https://i.imgur.com/zCJejfQ.gif" }, { url: "https://i.imgur.com/BhI9Dlk.gif" },
+                { url: "https://i.imgur.com/pHrsg60.gif" }, { url: "https://i.imgur.com/mkpnAJr.gif" }, { url: "https://i.imgur.com/BgecBgN.gif" }, { url: "https://i.imgur.com/HNjo15T.gif" }, { url: "https://i.imgur.com/JXdnDRy.gif" },
+                { url: "https://i.imgur.com/9IYRMVa.gif" }, { url: "https://i.imgur.com/BI8Hm4p.gif" }, { url: "https://i.imgur.com/vF9QqkZ.gif" }, { url: "https://i.imgur.com/4w9Ul0n.gif" }, { url: "https://i.imgur.com/9IQgTVt.gif" },
+                { url: "https://i.imgur.com/rcNYyvR.gif" }, { url: "https://i.imgur.com/9QyIStJ.gif" }, { url: "https://i.imgur.com/RX22QkK.gif" }, { url: "https://i.imgur.com/Yaa8V9q.gif" }, { url: "https://i.imgur.com/K5bqyAb.gif" },
+                { url: "https://i.imgur.com/gEHkfsy.gif" }, { url: "https://i.imgur.com/34z4Ddu.gif" }, { url: "https://i.imgur.com/W7rjDOq.gif" }, { url: "https://i.imgur.com/5rbixh4.gif" }, { url: "https://i.imgur.com/vSf8LwZ.gif" },
+                { url: "https://i.imgur.com/BifRlbI.gif" }, { url: "https://i.imgur.com/pSlfHBx.gif" }, { url: "https://i.imgur.com/dI1IJIv.gif" }, { url: "https://i.imgur.com/ClEfL14.gif" }, { url: "https://i.imgur.com/Aa6wBTq.gif" },
+                { url: "https://i.imgur.com/rwq3PVT.gif" }, { url: "https://i.imgur.com/Yz0tsk0.gif" }, { url: "https://i.imgur.com/kxyilF1.gif" }, { url: "https://i.imgur.com/KDL5J9Q.gif" }, { url: "https://i.imgur.com/OydaR24.gif" },
+                { url: "https://i.imgur.com/cieRDxo.gif" }, { url: "https://i.imgur.com/PD49Qgp.gif" }, { url: "https://i.imgur.com/XD6r8hy.gif" }, { url: "https://i.imgur.com/GuNLwe7.gif" }, { url: "https://i.imgur.com/k8c4xBX.gif" },
+                { url: "https://i.imgur.com/dwVv3Np.gif" }, { url: "https://i.imgur.com/Ppe0d7W.gif" }, { url: "https://i.imgur.com/lxdNE2N.gif" }, { url: "https://i.imgur.com/jIROKzV.gif" }, { url: "https://i.imgur.com/QRvQqnP.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'boys': { marquee: "⚽ Gifs for Boys ⚽", prefix: "Boys - ", items: [
+                { url: "https://i.imgur.com/TuM4M0Y.gif" }, { url: "https://i.imgur.com/Efq83dj.gif" }, { url: "https://i.imgur.com/2sST25I.gif" }, { url: "https://i.imgur.com/owUDph9.gif" }, { url: "https://i.imgur.com/AfYHp9I.gif" },
+                { url: "https://i.imgur.com/2p3LqTb.gif" }, { url: "https://i.imgur.com/PzBq5cQ.gif" }, { url: "https://i.imgur.com/aZqpfXn.gif" }, { url: "https://i.imgur.com/w8PLjgH.gif" }, { url: "https://i.imgur.com/8Mdqo6S.gif" },
+                { url: "https://i.imgur.com/8IQ7rkO.gif" }, { url: "https://i.imgur.com/6FyQWXx.gif" }, { url: "https://i.imgur.com/PEtWkQQ.gif" }, { url: "https://i.imgur.com/UaVZDVR.gif" }, { url: "https://i.imgur.com/7o6JiVs.gif" },
+                { url: "https://i.imgur.com/42hhrTx.gif" }, { url: "https://i.imgur.com/Ual7U1b.gif" }, { url: "https://i.imgur.com/ORNyPoo.gif" }, { url: "https://i.imgur.com/uLch4gh.gif" }, { url: "https://i.imgur.com/cn99itV.gif" },
+                { url: "https://i.imgur.com/rjUotMM.gif" }, { url: "https://i.imgur.com/k0IBNXr.gif" }, { url: "https://i.imgur.com/8BBQd0U.gif" }, { url: "https://i.imgur.com/s5JY6KC.gif" }, { url: "https://i.imgur.com/41J6p8H.gif" },
+                { url: "https://i.imgur.com/MLyoMwc.gif" }, { url: "https://i.imgur.com/bM3EV99.gif" }, { url: "https://i.imgur.com/RD5TBCC.gif" }, { url: "https://i.imgur.com/cOozjHQ.gif" }, { url: "https://i.imgur.com/e9eEEwO.gif" },
+                { url: "https://i.imgur.com/tKJ6yHn.gif" }, { url: "https://i.imgur.com/eufJQoB.gif" }, { url: "https://i.imgur.com/sDMDlGy.gif" }, { url: "https://i.imgur.com/QsjULQQ.gif" }, { url: "https://i.imgur.com/aCPefwY.gif" },
+                { url: "https://i.imgur.com/p2xjO2k.gif" }, { url: "https://i.imgur.com/hCInipp.gif" }, { url: "https://i.imgur.com/tvvApvD.gif" }, { url: "https://i.imgur.com/3Mt9UNv.gif" }, { url: "https://i.imgur.com/TfARJjn.gif" },
+                { url: "https://i.imgur.com/dR3CxCN.gif" }, { url: "https://i.imgur.com/8gfbsdF.gif" }, { url: "https://i.imgur.com/GhSz4Tm.gif" }, { url: "https://i.imgur.com/tQUkifV.gif" }, { url: "https://i.imgur.com/WbAm6EF.gif" },
+                { url: "https://i.imgur.com/A6pBzZ2.gif" }, { url: "https://i.imgur.com/pxRvTLF.gif" }, { url: "https://i.imgur.com/NBZRESL.gif" }, { url: "https://i.imgur.com/qXdhY7k.gif" }, { url: "https://i.imgur.com/qRKBupx.gif" },
+                { url: "https://i.imgur.com/VYzO4af.gif" }, { url: "https://i.imgur.com/296olmQ.gif" }, { url: "https://i.imgur.com/TUQlHZG.gif" }, { url: "https://i.imgur.com/c75lqAO.gif" }, { url: "https://i.imgur.com/byDQC25.gif" },
+                { url: "https://i.imgur.com/CsBqooA.gif" }, { url: "https://i.imgur.com/1rVeohN.gif" }, { url: "https://i.imgur.com/JTNs7O5.gif" }, { url: "https://i.imgur.com/E161qFF.gif" }, { url: "https://i.imgur.com/BXHH620.gif" },
+                { url: "https://i.imgur.com/Z3wkqGh.gif" }, { url: "https://i.imgur.com/z8cFNUw.gif" }, { url: "https://i.imgur.com/JLu7n4L.gif" }, { url: "https://i.imgur.com/K8Q1FrS.gif" }, { url: "https://i.imgur.com/OKeupng.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'NewTrend': { marquee: "⭐ New Trend ⭐", prefix: "DJ - ", items: [
+                { url: "https://i.imgur.com/aEWCfBv.gif" }, { url: "https://i.imgur.com/S1JdH9n.gif" }, { url: "https://i.imgur.com/XsFu89U.gif" }, { url: "https://i.imgur.com/9KIlnTT.gif" }, { url: "https://i.imgur.com/TSKKzEh.gif" },
+                { url: "https://i.imgur.com/iDIQvMr.gif" }, { url: "https://i.imgur.com/wa8jTmW.gif" }, { url: "https://i.imgur.com/NXgQlle.gif" }, { url: "https://i.imgur.com/fWhcjua.gif" }, { url: "https://i.imgur.com/jgTSZZY.gif" },
+                { url: "https://i.imgur.com/VXFoIQM.gif" }, { url: "https://i.imgur.com/ukS74e8.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'lovers': { marquee: "❤️ Gifs for Lovers ❤️", prefix: "Love - ", items: [
+                { url: "https://i.imgur.com/Ep5rHb0.gif" }, { url: "https://i.imgur.com/C6k7ZqD.gif" }, { url: "https://i.imgur.com/5mOjvLd.gif" }, { url: "https://i.imgur.com/GV09kK0.gif" }, { url: "https://i.imgur.com/mrSg7lE.gif" },
+                { url: "https://i.imgur.com/aKcDvFs.gif" }, { url: "https://i.imgur.com/pnD2aI6.gif" }, { url: "https://i.imgur.com/C8QLl5R.gif" }, { url: "https://i.imgur.com/t64DLkv.gif" }, { url: "https://i.imgur.com/vqhkiDt.gif" },
+                { url: "https://i.imgur.com/DWNZZAw.gif" }, { url: "https://i.imgur.com/ega8lnz.gif" }, { url: "https://i.imgur.com/1XgqvGq.gif" }, { url: "https://i.imgur.com/8C5CM5l.gif" }, { url: "https://i.imgur.com/GG9FWLE.gif" },
+                { url: "https://i.imgur.com/3D2EGuq.gif" }, { url: "https://i.imgur.com/RB9hBXI.gif" }, { url: "https://i.imgur.com/sw8xynw.gif" }, { url: "https://i.imgur.com/zGwllEx.gif" }, { url: "https://i.imgur.com/An7GVDw.gif" },
+                { url: "https://i.imgur.com/oAQ7ZKY.gif" }, { url: "https://i.imgur.com/W2Ik2ii.gif" }, { url: "https://i.imgur.com/TsrKndW.gif" }, { url: "https://i.imgur.com/oIHksVr.gif" }, { url: "https://i.imgur.com/DUbooaj.gif" },
+                { url: "https://i.imgur.com/FrM3Ofc.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'christmas': { marquee: "🎅🏻 Gifs for Christmas 🎅🏻", prefix: "Santa-", items: [
+                { url: "https://i.imgur.com/scFUgeO.gif" }, { url: "https://i.imgur.com/C2IlOHP.gif" }, { url: "https://i.imgur.com/eg68Ecf.gif" }, { url: "https://i.imgur.com/WDqAEGt.gif" }, { url: "https://i.imgur.com/UYihg7u.gif" },
+                { url: "https://i.imgur.com/8TTBlP3.gif" }, { url: "https://i.imgur.com/pMISF5C.gif" }, { url: "https://i.imgur.com/t9DUoYB.gif" }, { url: "https://i.imgur.com/LltFIjJ.gif" }, { url: "https://i.imgur.com/C1GKTUp.gif" },
+                { url: "https://i.imgur.com/lgDQ9xV.gif" }, { url: "https://i.imgur.com/B6mFraA.gif" }, { url: "https://i.imgur.com/e65XgqR.gif" }, { url: "https://i.imgur.com/zEcR46h.gif" }, { url: "https://i.imgur.com/jziuHfV.gif" },
+                { url: "https://i.imgur.com/i7U9ne1.gif" }, { url: "https://i.imgur.com/ZjBgtDn.gif" }, { url: "https://i.imgur.com/Zk4NxmP.gif" }, { url: "https://i.imgur.com/QCUo3JL.gif" }, { url: "https://i.imgur.com/RslU5NE.gif" },
+                { url: "https://i.imgur.com/XuTa0A3.gif" }, { url: "https://i.imgur.com/ZhxY9yY.gif" }, { url: "https://i.imgur.com/wQKCFYN.gif" }, { url: "https://i.imgur.com/Xec6iR5.gif" }, { url: "https://i.imgur.com/gaqAFSz.gif" },
+                { url: "https://i.imgur.com/4d2hV6U.gif" }, { url: "https://i.imgur.com/7kZUGXu.gif" }, { url: "https://i.imgur.com/v8D3w3m.gif" }, { url: "https://i.imgur.com/wi1UzvB.gif" }, { url: "https://i.imgur.com/nb5PWLW.gif" },
+                { url: "https://i.imgur.com/6q8KyXL.gif" }, { url: "https://i.imgur.com/vz6tFYD.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'halloween': { marquee: "🤡 Gifs for Halloween 🤡", prefix: "Hall-", items: [
+                { url: "https://i.imgur.com/mUyGHFF.gif" }, { url: "https://i.imgur.com/cgzae5r.gif" }, { url: "https://i.imgur.com/Dppu6pE.gif" }, { url: "https://i.imgur.com/2nvsLCI.gif" }, { url: "https://i.imgur.com/Ht5XcEc.gif" },
+                { url: "https://i.imgur.com/OettBBr.gif" }, { url: "https://i.imgur.com/rYCjFFq.gif" }, { url: "https://i.imgur.com/iJVwNxa.gif" }, { url: "https://i.imgur.com/5Rr1Y1j.gif" }, { url: "https://i.imgur.com/kZs9z55.gif" },
+                { url: "https://i.imgur.com/EbfHYIt.gif" }, { url: "https://i.imgur.com/QBFbahJ.gif" }, { url: "https://i.imgur.com/U7N9f1o.gif" }, { url: "https://i.imgur.com/dMwhgcn.gif" }, { url: "https://i.imgur.com/tmZpDTT.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'mixed': { marquee: "🏆 Gifs Mixed 🏆", prefix: "Mix-A-", items: [
+                { url: "https://i.imgur.com/2bISAr5.gif" }, { url: "https://i.imgur.com/S9MdkJ5.gif" }, { url: "https://i.imgur.com/7DUEwLS.gif" }, { url: "https://i.imgur.com/W333chJ.gif" }, { url: "https://i.imgur.com/Ssb3929.gif" },
+                { url: "https://i.imgur.com/RQHM46D.gif" }, { url: "https://i.imgur.com/lGQJNX1.gif" }, { url: "https://i.imgur.com/lJiLGQ8.gif" }, { url: "https://i.imgur.com/w4Sci6P.gif" }, { url: "https://i.imgur.com/ugX43iJ.gif" },
+                { url: "https://i.imgur.com/AkNqNY1.gif" }, { url: "https://i.imgur.com/aSobzUt.gif" }, { url: "https://i.imgur.com/INt3jug.gif" }, { url: "https://i.imgur.com/zpFsVAz.gif" }, { url: "https://i.imgur.com/PJesNbS.gif" },
+                { url: "https://i.imgur.com/VO0ieCW.gif" }, { url: "https://i.imgur.com/kuqjWLl.gif" }, { url: "https://i.imgur.com/fPot2Xs.gif" }, { url: "https://i.imgur.com/IlobBuk.gif" }, { url: "https://i.imgur.com/EKEhV21.gif" },
+                { url: "https://i.imgur.com/nmsv6jb.gif" }, { url: "https://i.imgur.com/IdXSX1G.gif" }, { url: "https://i.imgur.com/SN9H6sb.gif" }, { url: "https://i.imgur.com/glj9d5s.gif" }, { url: "https://i.imgur.com/uatKnzK.gif" },
+                { url: "https://i.imgur.com/J1rgeOX.gif" }, { url: "https://i.imgur.com/N9pTpyb.gif" }, { url: "https://i.imgur.com/BlD5Z0H.gif" }, { url: "https://i.imgur.com/9jFdr5h.gif" }, { url: "https://i.imgur.com/9jQbyrA.gif" },
+                { url: "https://i.imgur.com/e1VjaA1.gif" }, { url: "https://i.imgur.com/nLUJ9zd.gif" }, { url: "https://i.imgur.com/3P5qIfz.gif" }, { url: "https://i.imgur.com/EAmV3X8.gif" }, { url: "https://i.imgur.com/4LqAKYX.gif" },
+                { url: "https://i.imgur.com/OiPsJkK.gif" }, { url: "https://i.imgur.com/bjHShWs.gif" }, { url: "https://i.imgur.com/2TwOTwM.gif" }, { url: "https://i.imgur.com/z81fxbX.gif" }, { url: "https://i.imgur.com/iqtI1Bu.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'pcback-normal': { marquee: "🖥️ PCBACK 🖥️", prefix: "PC-", items: [
+                { url: "https://xatimg.com/image/cCpGK3LrxlNX.png" },
+                { url: "https://xatimg.com/image/5T16aIvGXfRN.png" }, { url: "https://xatimg.com/image/M5HD6ApLAAM3.jpg" }, { url: "https://xatimg.com/image/6kVm0ofJURF3.jpg" }, { url: "https://xatimg.com/image/rDCnQeBf9aEu.png" },
+				{ url: "https://xatimg.com/image/Tx1mZXqRJsb8.png" }, { url: "https://xatimg.com/image/02RskW9CRreD.jpg" }, { url: "https://xatimg.com/image/IWl3SweOuc00.png" }, { url: "https://xatimg.com/image/rq79TIsCr7vV.png" },
+				{ url: "https://xatimg.com/image/X9kDFKyw1lO9.png" },
+                { url: "https://xatimg.com/image/sjM9UZiBbQmK.png" }, { url: "https://xatimg.com/image/pYYCaRPAEKVc.jpg" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'pcback-animados': { marquee: "🖥️ PCBACK ANIMADOS 🖥️", prefix: "PCA-", items: [
+                { url: "https://xatimg.com/image/rS3L7ejQLGiq.gif" },
+                { url: "https://xatimg.com/image/3O3H3UUmR9H4.gif" }, { url: "https://xatimg.com/image/hz29CteGdPZV.gif" }, { url: "https://xatimg.com/image/bX3fNuApyFkT.gif" }, { url: "https://xatimg.com/image/KE4EObzBmePM.gif" }, { url: "https://xatimg.com/image/IZhGXEniwpjr.gif" }, { url: "https://xatimg.com/image/74ceWpIARaou.gif" }, { url: "https://xatimg.com/image/hvT7zNKlcvR0.gif" }, { url: "ttps://xatimg.com/image/zWualVh1iI4F.gif" }, { url: "ttps://xatimg.com/image/LIn90nRSvoFc.gif" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]},
+            'fondo': { marquee: "🖼️ FONDOS 🖼️", prefix: "F-", items: [
+                { url: "https://xatimg.com/image/blx30mE2hw2s.jpg" },
+                { url: "https://xatimg.com/image/MTPYlc1x6OOo.jpg" },
+                { url: "https://xatimg.com/image/hhHmHtxxyU5B.png" }, { url: "https://xatimg.com/image/EiBFL2lh6WPN.png" }, { url: "https://xatimg.com/image/gDTu6FfKrn9H.png" }, { url: "https://xatimg.com/image/CMEobMOoydxR.png" }, { url: "https://xatimg.com/image/dIoK6dbHeyqy.png" }, { url: "https://xatimg.com/image/J7Usni9w00Gd.jpg" }, { url: "https://xatimg.com/image/DZaSaIYGMS4B.png" }, { url: "https://xatimg.com/image/0aY7wfFuTm7D.png" },
+                { url: "https://xatimg.com/image/EvLIYOFtlkE5.png" }, { url: "https://xatimg.com/image/dMIxGs7dcWv8.png" }, { url: "https://xatimg.com/image/mxYcqInbJO0x.png" }, { url: "https://xatimg.com/image/FL2oBuVFmsJc.png" }, { url: "https://xatimg.com/image/o3CuLSh8ryzz.png" }, { url: "https://xatimg.com/image/uX0QEIy0Y4fP.jpg" }, { url: "https://xatimg.com/image/CDjUylfEH0jh.png" }, { url: "https://xatimg.com/image/OKjSrKZqFjZG.png" }, { url: "https://xatimg.com/image/bFMi9Pb4x2PO.png" }, { url: "https://xatimg.com/image/xHD2T30BdsU6.png" },
+                { url: "https://xatimg.com/image/6AWd7qlWdCe0.png" }, { url: "https://xatimg.com/image/fPTtlUUN2Ol7.png" }, { url: "https://xatimg.com/image/TMTxBSEO4RSn.png" }, { url: "https://xatimg.com/image/IrNXULxli9SC.png" }, { url: "https://xatimg.com/image/IrNXULxli9SC.png" }, { url: "https://xatimg.com/image/0OKk9zqU7LcL.jpg" }, { url: "https://xatimg.com/image/dSZ2k46ACxM6.png" }, { url: "https://xatimg.com/image/xdnJfON9lmaE.png" }, { url: "https://xatimg.com/image/qu9FTaDwqP0z.png" }, { url: "https://xatimg.com/image/H51LN2umMoY4.png" },
+                { url: "https://xatimg.com/image/pwxfNxpSsLmT.png" }, { url: "inserte link aquí" }, { url: "https://xatimg.com/image/2LFPlAzwD7db.png" }, { url: "https://xatimg.com/image/UZ30j1MUEMJX.png" }, { url: "https://xatimg.com/image/UZ30j1MUEMJX.png" }, { url: "https://xatimg.com/image/IbDpjjfyyPNv.png" }, { url: "https://xatimg.com/image/cMhZamX6jNVj.png" }, { url: "https://xatimg.com/image/haRB9pBclzst.png" }, { url: "https://xatimg.com/image/tc4iwhixmPP7.png" }, { url: "inserte link aquí" },
+                { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }, { url: "inserte link aquí" }
+            ]}
+        };
+
+        const viewHome = `<div class="flex flex-col w-full"><div class="bg-dark-800 rounded-2xl border border-dark-700 shadow-lg overflow-hidden card-hover mb-4 md:mb-6"><div class="p-4 md:p-6 pb-4 border-b border-dark-700 flex justify-between items-center bg-dark-700/30"><div><h2 class="text-xl md:text-2xl font-bold text-white mb-1">GIFS</h2></div><i class="ph ph-gif text-3xl md:text-4xl text-brand-500"></i></div><div class="p-4 md:p-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 md:gap-3"><button onclick="changeView('gifs-new')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/kCHPefP.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-sparkle text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">New Style</span></div></button><button onclick="changeView('gifs-girls')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/hljCHn0.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-crown text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">Girls</span></div></button><button onclick="changeView('gifs-boys')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/TuM4M0Y.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-soccer-ball text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">Boys</span></div></button><button onclick="changeView('gifs-dj')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/aEWCfBv.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-headphones text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">DJ</span></div></button><button onclick="changeView('gifs-lovers')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/Ep5rHb0.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-heart text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">Lovers</span></div></button><button onclick="changeView('gifs-christmas')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/scFUgeO.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-tree-evergreen text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">Christmas</span></div></button><button onclick="changeView('gifs-halloween')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/mUyGHFF.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-ghost text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">Halloween</span></div></button><button onclick="changeView('gifs-mixed')" class="relative flex flex-col items-center justify-center p-3 md:p-4 rounded-xl border border-dark-700 hover:border-brand-500 overflow-hidden group h-20 md:h-24 bg-dark-900"><img src="https://i.imgur.com/2bISAr5.gif" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-50 transition-opacity" draggable="false"><div class="relative z-10 flex flex-col items-center"><i class="ph ph-trophy text-2xl md:text-3xl mb-1 md:mb-2 text-gray-300 group-hover:text-white"></i><span class="text-[10px] md:text-xs font-semibold text-gray-300 group-hover:text-white drop-shadow-md truncate">Mixed</span></div></button></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full"><div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden card-hover cursor-pointer relative shadow-lg group h-40 md:h-48" onclick="changeView('pcback-normal')"><div class="absolute inset-0 flex"><div class="w-1/2 h-full"><img src="https://xatimg.com/image/5T16aIvGXfRN.png" class="w-full h-full object-cover opacity-50 group-hover:opacity-90 transition-opacity" draggable="false"></div><div class="w-1/2 h-full"><img src="https://xatimg.com/image/aJNBmA8Zvufs.png" class="w-full h-full object-cover opacity-50 group-hover:opacity-90 transition-opacity" draggable="false"></div></div><div class="absolute inset-0 bg-gradient-to-t from-dark-800 via-dark-800/40 to-transparent pointer-events-none"></div><div class="absolute bottom-0 left-0 p-4 md:p-6 z-10 w-full"><h2 class="text-xl md:text-2xl font-bold text-white drop-shadow-md truncate">PCBACK</h2></div></div><div class="bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden card-hover cursor-pointer relative shadow-lg group h-40 md:h-48" onclick="changeView('pcback-animados')"><div class="absolute inset-0 flex"><div class="w-1/2 h-full"><img src="https://xatimg.com/image/j1DNadZRYUr4.gif" class="w-full h-full object-cover opacity-50 group-hover:opacity-90 transition-opacity" draggable="false"></div><div class="w-1/2 h-full"><img src="https://xatimg.com/image/3UFUXiEE5063.gif" class="w-full h-full object-cover opacity-50 group-hover:opacity-90 transition-opacity" draggable="false"></div></div><div class="absolute inset-0 bg-gradient-to-t from-dark-800 via-dark-800/40 to-transparent pointer-events-none"></div><div class="absolute bottom-0 left-0 p-4 md:p-6 z-10 w-full"><h2 class="text-xl md:text-2xl font-bold text-white drop-shadow-md truncate">ANIMADOS PcBack/Pstyle</h2></div></div></div><div class="flex justify-center w-full mt-4 md:mt-6"><div class="w-full md:w-1/2 bg-dark-800 rounded-2xl border border-dark-700 overflow-hidden card-hover cursor-pointer relative shadow-lg group h-40 md:h-48" onclick="changeView('fondo')"><div class="absolute inset-0 flex"><div class="w-1/2 h-full"><img src="https://xatimg.com/image/jc0XO7tPMm1f.png" class="w-full h-full object-cover opacity-50 group-hover:opacity-90 transition-opacity" draggable="false"></div><div class="w-1/2 h-full"><img src="https://live.staticflickr.com/65535/50681061508_106f8e75a6_c.jpg" class="w-full h-full object-cover opacity-50 group-hover:opacity-90 transition-opacity" draggable="false"></div></div><div class="absolute inset-0 bg-gradient-to-t from-dark-800 via-dark-800/40 to-transparent pointer-events-none"></div><div class="absolute bottom-0 left-0 p-4 md:p-6 z-10 w-full"><h2 class="text-xl md:text-2xl font-bold text-white drop-shadow-md truncate">FONDOS</h2></div></div></div></div>`;
+
+        const contentArea = document.getElementById('content-area');
+        const pageTitle = document.getElementById('page-title');
+        let currentLightboxImages = [];
+        let currentLightboxIndex = 0;
+
+        function toggleMenu(id){const m=document.getElementById(id+'-submenu');const c=document.getElementById(id+'-caret');if(m.classList.contains('submenu-open')){m.classList.remove('submenu-open');c.classList.remove('rotate-180');}else{m.classList.add('submenu-open');c.classList.add('rotate-180');}}
+        function openMenuIfClosed(id){const m=document.getElementById(id+'-submenu');const c=document.getElementById(id+'-caret');if(!m.classList.contains('submenu-open')){m.classList.add('submenu-open');c.classList.add('rotate-180');}}
+        function updateActiveNav(id){document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('bg-dark-700','text-white');b.classList.add('text-gray-300');});const a=document.getElementById(`nav-${id}`);if(a){a.classList.add('bg-dark-700','text-white');a.classList.remove('text-gray-300');}}
+
+        function initLazyLoad(){
+            const imgs=document.querySelectorAll('.lazy-image');
+            if(!('IntersectionObserver' in window)){imgs.forEach(i=>{i.src=i.getAttribute('data-src');i.classList.remove('opacity-0');});return;}
+            const obs=new IntersectionObserver((e,o)=>{e.forEach(en=>{if(en.isIntersecting){const i=en.target;i.src=i.getAttribute('data-src');i.onload=()=>{i.classList.remove('opacity-0');i.classList.add('opacity-100');};o.unobserve(i);}});},{rootMargin:"200px 0px",threshold:0.01});
+            imgs.forEach(i=>obs.observe(i));
+        }
+
+        function generateGallery(k){
+            const c=categoriesData[k];if(!c)return'';
+            const g=['pcback-normal','pcback-animados','fondo'].includes(k);
+            const cl=g?"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full":"grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-5 w-full";
+            let h=`<div class="mb-12 w-full"><div class="flex items-center mb-6 md:mb-8"><div class="h-6 md:h-8 w-1.5 md:w-2 bg-brand-500 rounded-full mr-3 md:mr-4 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></div><h2 class="text-lg md:text-2xl font-display text-white tracking-wide truncate">${c.marquee}</h2></div><div class="${cl}">`;
+            const s="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E";
+            for(let i=0;i<c.items.length;i++){
+                let u=String(c.items[i].url||"").trim();let m=(u==="inserte link aquí"||u==="");
+                let o=(!m&&g)?`onclick="openLightbox('${k}',${i})"`:"";let cc=(!m&&g)?"cursor-pointer":(m?"cursor-default":"cursor-pointer");
+                if(g){
+                    h+=`<div ${o} class="bg-dark-800 border border-dark-700 shadow-md rounded-xl p-2 md:p-3 flex flex-col items-center justify-center h-48 sm:h-56 md:h-64 hover:border-brand-500 hover:bg-dark-700 transition-all ${cc} group relative overflow-hidden"><span class="absolute top-2 left-2 md:top-3 md:left-3 bg-dark-900/90 px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-bold text-gray-400 group-hover:text-brand-400 transition-colors z-10 shadow-md">${c.prefix}${i+1}</span>`;
+                    if(m){h+=`<div class="w-full h-full flex items-center justify-center font-display text-3xl md:text-5xl text-dark-600 font-bold opacity-30 group-hover:opacity-100 transition-opacity">${i+1}</div>`;}
+                    else{h+=`<div class="w-full h-full flex items-center justify-center p-1 md:p-2 relative"><img data-src="${u}" src="${s}" draggable="false" class="lazy-image max-w-full max-h-full object-contain drop-shadow-lg opacity-0 transition-opacity duration-500" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div style="display:none;" class="w-full h-full items-center justify-center font-display text-3xl md:text-5xl text-dark-600 font-bold opacity-30 group-hover:opacity-100">${i+1}</div><div class="absolute inset-0 bg-brand-500/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center pointer-events-none"><i class="ph ph-arrows-out text-4xl md:text-5xl text-white drop-shadow-lg scale-50 group-hover:scale-100 transition-transform duration-300"></i></div></div>`;}
+                }else{
+                    h+=`<div class="bg-dark-800 border border-dark-700 shadow-md rounded-xl p-2 md:p-3 flex flex-col items-center justify-center h-32 md:h-40 hover:border-brand-500 hover:bg-dark-700 transition-all cursor-pointer group"><span class="text-[10px] md:text-xs font-bold text-gray-500 mb-1 md:mb-2 group-hover:text-brand-400 transition-colors">${c.prefix}${i+1}</span>`;
+                    if(m){h+=`<div class="w-full flex-1 flex items-center justify-center font-display text-2xl md:text-4xl text-dark-600 font-bold opacity-30 group-hover:opacity-100 transition-opacity">${i+1}</div>`;}
+                    else{h+=`<img data-src="${u}" src="${s}" draggable="false" class="lazy-image max-h-16 md:max-h-24 w-full object-contain drop-shadow-lg opacity-0 transition-opacity duration-500" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div style="display:none;" class="w-full flex-1 items-center justify-center font-display text-2xl md:text-4xl text-dark-600 font-bold opacity-30 group-hover:opacity-100">${i+1}</div>`;}
+                }
+                h+=`</div>`;
+            }
+            h+=`</div></div>`;return h;
+        }
+
+        function openLightbox(k,o){
+            const c=categoriesData[k];
+            currentLightboxImages=c.items.map((i,x)=>({url:i.url,num:x+1,prefix:c.prefix})).filter(i=>i.url&&i.url!=="inserte link aquí");
+            currentLightboxIndex=currentLightboxImages.findIndex(i=>i.num===(o+1));
+            if(currentLightboxIndex===-1)return;
+            showLightboxImage();
+            const l=document.getElementById('lightbox');l.classList.remove('hidden');
+            setTimeout(()=>l.classList.remove('opacity-0'),10);
+        }
+
+        function closeLightbox(){const l=document.getElementById('lightbox');l.classList.add('opacity-0');setTimeout(()=>l.classList.add('hidden'),300);}
+        function nextImage(){if(currentLightboxImages.length===0)return;currentLightboxIndex=(currentLightboxIndex+1)%currentLightboxImages.length;showLightboxImage();}
+        function prevImage(){if(currentLightboxImages.length===0)return;currentLightboxIndex=(currentLightboxIndex-1+currentLightboxImages.length)%currentLightboxImages.length;showLightboxImage();}
+        function showLightboxImage(){const c=currentLightboxImages[currentLightboxIndex];document.getElementById('lightbox-img').src=c.url;document.getElementById('lightbox-caption').textContent=`${c.prefix}${c.num}`;}
+
+        function changeView(v){
+            updateActiveNav(v);contentArea.style.opacity=0;
+            setTimeout(()=>{
+                if(v==='home'){pageTitle.textContent="Diseños";contentArea.innerHTML=viewHome;const m1=document.getElementById('gifs-submenu');if(m1&&m1.classList.contains('submenu-open'))toggleMenu('gifs');const m2=document.getElementById('pcback-submenu');if(m2&&m2.classList.contains('submenu-open'))toggleMenu('pcback');}
+                else if(v.startsWith('gifs-')){openMenuIfClosed('gifs');const k=v.replace('gifs-','');const c=categoriesData[k];const t=c.marquee.replace(/[^a-zA-Z\s\-]/g,'').trim();pageTitle.innerHTML=`Galería <span class="text-gradient font-display tracking-widest ml-1 md:ml-2">${t}</span>`;contentArea.innerHTML=generateGallery(k);initLazyLoad();}
+                else if(v.startsWith('pcback-')){openMenuIfClosed('pcback');const c=categoriesData[v];const t=c.marquee.replace(/[^a-zA-Z\s\-]/g,'').trim();pageTitle.innerHTML=`Galería <span class="text-gradient font-display tracking-widest ml-1 md:ml-2">${t}</span>`;contentArea.innerHTML=generateGallery(v);initLazyLoad();}
+                else if(v==='fondo'){const c=categoriesData[v];const t=c.marquee.replace(/[^a-zA-Z\s\-]/g,'').trim();pageTitle.innerHTML=`Galería <span class="text-gradient font-display tracking-widest ml-1 md:ml-2">${t}</span>`;contentArea.innerHTML=generateGallery(v);initLazyLoad();}
+                contentArea.style.opacity=1;contentArea.style.transition='opacity 0.3s ease-in-out';
+            },150);
+        }
+
+        document.addEventListener('DOMContentLoaded',()=>{
+            changeView('home');
+            (function(){const f=document.createElement('div');f.className='w-full py-4 md:py-6 text-center text-gray-700 text-[10px] md:text-xs font-semibold tracking-widest bg-dark-900 border-t border-dark-800 mt-auto select-none';f.innerText=atob('RGVzaWduIEJ5IE1hcnYgKDYxNjE2MSk=');document.getElementById('main-scroll-area').appendChild(f);})();
+        });
+    </script>
 </body>
 </html>
-
